@@ -14,7 +14,7 @@ typedef struct{
     size_t length;
 } char_pointer_array;
 
-array_ length_of_strings(char array[], size_t length, size_t score){ // 1. блок 2. размер блока 3. количество строк
+static array_ length_of_strings(char array[], size_t length, size_t score){ // 1. блок 2. размер блока 3. количество строк
     array_ result;
     result.array_of_lengths = malloc(score*sizeof(size_t));
     result.array_of_indexes = malloc(score*sizeof(size_t));

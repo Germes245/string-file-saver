@@ -2,12 +2,6 @@
 #include <stddef.h>
 
 typedef struct{
-    size_t* array_of_lengths;// длина включая нулевой терминатор
-    size_t* array_of_indexes;
-    size_t length;
-} array_;
-
-typedef struct{
     char **text;
     size_t length;
 } char_pointer_array;
