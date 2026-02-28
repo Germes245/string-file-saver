@@ -33,10 +33,8 @@ void write_strings_into_file(char* name_of_file, char *text[], uint32_t number_o
     uint32_t size_of_block = 0;
     for(uint32_t i = 0; i < number_of_strings_in_text; i++){
         uint32_t len = strlen(text[i]);
-        printf("len %d\n", len);
         if(len > size_of_block) size_of_block = len + 1;
     }
-    printf("size_of_block %d\n", size_of_block);
     FILE *file = fopen(name_of_file, "wb");
     if (file == NULL) {
         perror("Ошибка открытия");
