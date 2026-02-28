@@ -55,13 +55,10 @@ void write_strings_into_file(char* name_of_file, char *text[], uint32_t number_o
     uint8_t current_size_of_strings = 0;
     for(size_t i = 0; i < number_of_strings_in_text; i++){
         size_t size = strlen(text[i])+1;
-        printf("shya\n");
         if(size <= size_of_block - current_size_of_strings){
-            printf("shya1\n");
             memcpy(block+current_size_of_strings, text[i], size);
         }
         else{
-            printf("shya2\n");
             fwrite(block, sizeof(char), size_of_block*sizeof(char), file);
             for(size_t i = 0; i < size_of_block; i++)
                 block[i] = 0;
