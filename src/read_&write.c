@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 typedef struct{
     size_t* array_of_lengths;// длина включая нулевой терминатор
@@ -14,19 +15,63 @@ typedef struct{
     size_t length;
 } char_pointer_array;
 
-static array_ length_of_strings(char array[], size_t length, size_t score){ // 1. блок 2. размер блока 3. количество строк
+array_ length_of_strings(char array[], uint32_t length){ // 1. блок 2. размер блока 3. количество строк
     array_ result;
-    result.array_of_lengths = malloc(score*sizeof(size_t));
-    result.array_of_indexes = malloc(score*sizeof(size_t));
-    result.length = score;
-    for(size_t i = 0, j = 0; i < length; j++){
-        size_t length = strlen(array+i)+1;
-        if(array[i] == 0) break;
-        result.array_of_lengths[j] = length;
-        result.array_of_indexes[j] = i;
-        i += length;
+    result.length = 0;
+    for(uint32_t i = 0; i < length; i++){
+        if(array[i] == 0){
+            result.length++;
+            if((i + 1 == length) || (array[i + 1] == 0)){
+                break;
+            }
+        }
+    }
+    result.array_of_indexes = malloc(result.length * sizeof(uint32_t));
+    result.array_of_lengths = malloc(result.length * sizeof(uint32_t));
+    for(uint32_t index = 0, j = 0, length = 0; j < result.length; index++){
+        if(array[index] == 0){
+            result.array_of_indexes[j] = index;
+            j++;
+            result.array_of_indexes[j] = length;
+            length = 0;
+        }
+        if(index + 1 == length && array[index + 1] == 0){
+            break;
+        }
+        length++;
     }
     return result;
+}
+
+char_pointer_array read_strings_from_file(char* name_of_file){
+    FILE *file = fopen(name_of_file, "rb");
+    if (file == NULL) {
+        perror("Ошибка открытия");
+        exit(1);
+    }
+    char_pointer_array strings;
+    uint32_t size_of_block;
+    {
+        uint32_t array[2];
+        fread(array, sizeof(uint32_t), 2, file);
+        size_of_block = array[0];
+        strings.length = array[1];
+    }
+    strings.text = malloc(strings.length*sizeof(char*));
+    char block[size_of_block];
+    register size_t i = 0;
+    while(fread(block, sizeof(char), size_of_block, file) != 0){
+        array_ result = length_of_strings(block, size_of_block);
+        /*for(size_t i = 0; i < result.length; i++){
+            strings.text[i] = malloc(result.array_of_lengths[i]);
+            memcpy(strings.text[i], block + result.array_of_indexes[i], result.array_of_lengths[i]);
+        }*/
+        for(int i = 0; i < result.length; i++) printf("%d ",result.array_of_indexes[i]);
+        putchar('\n');
+    }
+    exit(1);
+    fclose(file);
+    return strings;
 }
 
 void write_strings_into_file(char* name_of_file, char *text[], uint32_t number_of_strings_in_text){
@@ -66,32 +111,4 @@ void write_strings_into_file(char* name_of_file, char *text[], uint32_t number_o
     }
     fwrite(block, sizeof(char), size_of_block, file);
     fclose(file);
-}
-
-char_pointer_array read_strings_from_file(char* name_of_file){
-    FILE *file = fopen(name_of_file, "rb");
-    if (file == NULL) {
-        perror("Ошибка открытия");
-        exit(1);
-    }
-    char_pointer_array strings;
-    uint32_t size_of_block;
-    {
-        uint32_t array[2];
-        fread(array, sizeof(uint32_t), 2, file);
-        size_of_block = array[0];
-        strings.length = array[1];
-    }
-    strings.text = malloc(strings.length*sizeof(char*));
-    char block[size_of_block];
-    register size_t i = 0;
-    while(fread(block, sizeof(char), size_of_block, file) != 0){
-        array_ result = length_of_strings(block, size_of_block, strings.length);
-        for(size_t i = 0; i < result.length; i++){
-            strings.text[i] = malloc(result.array_of_lengths[i]);
-            memcpy(strings.text[i], block + result.array_of_indexes[i], result.array_of_lengths[i]);
-        }
-    }
-    fclose(file);
-    return strings;
 }
