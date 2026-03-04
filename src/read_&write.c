@@ -15,7 +15,57 @@ typedef struct{
     size_t length;
 } char_pointer_array;
 
-array_ length_of_strings(char array[], uint32_t length){ // 1. блок 2. размер блока 3. количество строк
+typedef struct{
+    uint32_t *array;
+    uint32_t length;
+} array_2;
+
+// (не)чистая функция
+array_2 find_elements_in_array(const char array[], const char element, uint32_t length){
+    array_2 result;
+    result.length = 0;
+    printf("length: %d\n", length);
+    for(uint32_t i = 0; i < length; i++){
+        if(array[i] == element){
+            result.length++;
+        }
+    }
+    result.array = malloc(result.length * sizeof(uint32_t));
+    //printf("%d\n", result.length);
+    //printf("aa\n");
+    for(uint32_t index = 0, j = 0; j < result.length; index++){
+        //printf("aa\n");
+        if(array[index] == element){
+            result.array[j] = index;
+            j++;
+        }
+    }
+    return result;
+}
+
+array_2 calculate_lengths(array_2 indexes){
+    array_2 result;
+    result.array = malloc(indexes.length);
+    result.array[0] = indexes.array[0];
+    for(uint32_t i = 1; i < result.length; i++){
+        //printf("length: %d\n", indexes.array[i] - indexes.array[i-1]);
+        result.array[i] = indexes.array[i] - indexes.array[i-1];
+    }
+    return result;
+}
+
+array_ length_of_strings(char array[], uint32_t length){
+    array_ result;
+    array_2 indexes = find_elements_in_array(array, 0, length);
+    array_2 lengths = calculate_lengths(indexes);
+    result.array_of_indexes = indexes.array;
+    result.array_of_lengths = lengths.array;
+    result.length = indexes.length;
+    return result;
+}
+
+// чистая функция
+/*array_ length_of_strings(char array[], uint32_t length){ // 1. блок 2. размер блока 3. количество строк
     array_ result;
     result.length = 0;
     for(uint32_t i = 0; i < length; i++){
@@ -41,8 +91,9 @@ array_ length_of_strings(char array[], uint32_t length){ // 1. блок 2. ра�
         length++;
     }
     return result;
-}
+}*/
 
+// нечистая функция
 char_pointer_array read_strings_from_file(char* name_of_file){
     FILE *file = fopen(name_of_file, "rb");
     if (file == NULL) {
@@ -61,6 +112,7 @@ char_pointer_array read_strings_from_file(char* name_of_file){
     char block[size_of_block];
     register size_t i = 0;
     while(fread(block, sizeof(char), size_of_block, file) != 0){
+        write(1, block, size_of_block);
         array_ result = length_of_strings(block, size_of_block);
         /*for(size_t i = 0; i < result.length; i++){
             strings.text[i] = malloc(result.array_of_lengths[i]);
@@ -91,6 +143,7 @@ void write_strings_into_file(char* name_of_file, char *text[], uint32_t number_o
         array[0] = size_of_block; //в первые байты записываем размер блока
         array[1] = number_of_strings_in_text;
         fwrite(array, size_for_array, 1, file);
+        free(array);
         //write(1, array, size_for_array);
     }
     char block[size_of_block];
@@ -102,13 +155,15 @@ void write_strings_into_file(char* name_of_file, char *text[], uint32_t number_o
             memcpy(block+current_size_of_strings, text[i], size);
         }
         else{
-            fwrite(block, sizeof(char), size_of_block*sizeof(char), file);
+            //write(1, block, size_of_block);
+            fwrite(block, sizeof(char), size_of_block, file);
             for(size_t i = 0; i < size_of_block; i++)
                 block[i] = 0;
         }
             memcpy(block, text[i], size); // возможно переполнение...
         current_size_of_strings += size;
     }
+    //write(1, block, size_of_block);
     fwrite(block, sizeof(char), size_of_block, file);
     fclose(file);
 }
