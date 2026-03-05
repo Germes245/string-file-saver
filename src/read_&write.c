@@ -96,18 +96,40 @@ void length_of_strings(char *result[], const char array[], uint32_t length){
     //array_ result;
     //result.length = count_chars_until_there_are_no_repeat_chars(array, 0, length);
     //printf("%s\n", array);
-    for(uint32_t i = 0; i < 2;){
-        const char* index = array + i;
-        uint32_t length_of_string = find_letter(index, 0, length - i);//'a'
-        if(!length_of_string) break;
-        //printf("length: %d\n", length_of_string);
-        result[i] = malloc(length_of_string + (++i));
-        memcpy(result + i, index, length_of_string);
-        //printf("index: %d\n", i);
-        write(1, array + i -1, length_of_string);
-        i += length_of_string;
-    }
-    //exit(1);
+    //for(uint32_t i = 0; i < length;){
+    const char* index = array;
+    //printf("index: %d\n", i);
+    //printf("shya\n");
+    uint32_t length2 = 0;
+
+    uint32_t length_of_string = find_letter(index, 0, length);//, length2 = length; //'a'
+    printf("length_of_string: %d\n", length_of_string);
+    //if(!length_of_string) break;
+    //printf("length: %d\n", length_of_string);
+    result[0] = malloc(length_of_string);
+    memcpy(result[0], index, length_of_string);
+    //printf("index: %d\n", i);
+    //printf("%d\n", length_of_string);
+    length2 += length_of_string;
+    index += length_of_string + 1;
+    printf("%d\n", length2);
+
+    length_of_string = find_letter(index, 0, length); //'a'
+    //length2 = length_of_string;
+    printf("length_of_string: %d\n", length_of_string);
+    result[1] = malloc(length_of_string);
+    memcpy(result[1], index, length_of_string);
+    //printf("%d\n", length_of_string);
+    length2 += length_of_string;
+    index += length_of_string + 1;
+
+    printf("%d\n", length2);
+    //write(1, result[i], length_of_string);
+    //write(1, array + i -1, length_of_string);
+    //i += length_of_string + 1;
+    //printf("index: %d\n", i);
+        //exit(1);
+    //}
     //return result;
 }
 
