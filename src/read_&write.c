@@ -20,9 +20,22 @@ typedef struct{
     uint32_t length;
 } array_2;
 
+uint32_t find_letter(const char *string, char element, uint32_t length){
+    uint32_t i = 0;
+    /*do {
+        i++;
+    } while (string[i] != element);*/
+    while(string[i] != element && length){
+        i++;
+        length--;
+    }
+    //for(; string[i] != element; i++);
+    return i;
+}
+
 // (не)чистая функция
-array_2 find_elements_in_array(const char array[], const char element, uint32_t length){
-    array_2 result;
+array_ find_elements_in_array(const char array[], const char element, uint32_t length){
+    array_ result;
     result.length = 0;
     printf("length: %d\n", length);
     for(uint32_t i = 0; i < length; i++){
@@ -30,16 +43,25 @@ array_2 find_elements_in_array(const char array[], const char element, uint32_t 
             result.length++;
         }
     }
-    result.array = malloc(result.length * sizeof(uint32_t));
-    //printf("%d\n", result.length);
-    //printf("aa\n");
+    result.array_of_lengths = malloc(result.length * sizeof(uint32_t));
     for(uint32_t index = 0, j = 0; j < result.length; index++){
-        //printf("aa\n");
         if(array[index] == element){
-            result.array[j] = index;
+            result.array_of_lengths[j] = index;
             j++;
+            //printf("length: %d\n", length);
+            //length = 0;
         }
+        //length++;
     }
+    /*for(uint32_t index = 0, length2 = 0; index < length; index++){
+        if(array[index] == element){
+            printf("length: %d\n", length2);
+            length2 = 0;
+        }
+        //printf("length2: %d\n", length2);
+        length2++;
+    }*/
+    printf("shya\n");
     return result;
 }
 
@@ -54,14 +76,39 @@ array_2 calculate_lengths(array_2 indexes){
     return result;
 }
 
-array_ length_of_strings(char array[], uint32_t length){
-    array_ result;
-    array_2 indexes = find_elements_in_array(array, 0, length);
-    array_2 lengths = calculate_lengths(indexes);
-    result.array_of_indexes = indexes.array;
-    result.array_of_lengths = lengths.array;
-    result.length = indexes.length;
-    return result;
+/*uint32_t count_chars(char *array, char number, uint32_t length){
+    uint32_t numbers = 0;
+    for(uint32_t i = 0; i < length; i++) numbers += array[i] == number;
+    return numbers;
+}*/
+
+uint32_t count_chars_until_there_are_no_repeat_chars(char *array, char number, uint32_t length){
+    uint32_t numbers = 0;
+    for(uint32_t i = 0; i < length - 1; i++){
+        uint8_t bool_ = array[i] == number;
+        numbers += bool_;
+        if(bool_ && array[i + 1] == number) break;
+    }
+    return numbers;
+}
+
+void length_of_strings(char *result[], const char array[], uint32_t length){
+    //array_ result;
+    //result.length = count_chars_until_there_are_no_repeat_chars(array, 0, length);
+    //printf("%s\n", array);
+    for(uint32_t i = 0; i < 2;){
+        const char* index = array + i;
+        uint32_t length_of_string = find_letter(index, 0, length - i);//'a'
+        if(!length_of_string) break;
+        //printf("length: %d\n", length_of_string);
+        result[i] = malloc(length_of_string + (++i));
+        memcpy(result + i, index, length_of_string);
+        //printf("index: %d\n", i);
+        write(1, array + i -1, length_of_string);
+        i += length_of_string;
+    }
+    //exit(1);
+    //return result;
 }
 
 // чистая функция
@@ -111,16 +158,16 @@ char_pointer_array read_strings_from_file(char* name_of_file){
     strings.text = malloc(strings.length*sizeof(char*));
     char block[size_of_block];
     register size_t i = 0;
-    while(fread(block, sizeof(char), size_of_block, file) != 0){
+    /*while(fread(block, sizeof(char), size_of_block, file) != 0){
         write(1, block, size_of_block);
         array_ result = length_of_strings(block, size_of_block);
-        /*for(size_t i = 0; i < result.length; i++){
+        for(size_t i = 0; i < result.length; i++){
             strings.text[i] = malloc(result.array_of_lengths[i]);
             memcpy(strings.text[i], block + result.array_of_indexes[i], result.array_of_lengths[i]);
-        }*/
+        }
         for(int i = 0; i < result.length; i++) printf("%d ",result.array_of_indexes[i]);
         putchar('\n');
-    }
+    }*/
     exit(1);
     fclose(file);
     return strings;
