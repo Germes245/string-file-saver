@@ -19,7 +19,7 @@ typedef struct{
 
 array_2 find_elements_in_array(const char array[], const char element, uint32_t length);
 array_2 calculate_lengths(array_2 indexes);
-array_ length_of_strings(char array[], uint32_t length);
+uint32_t length_of_strings(char *result[], const char array[], uint32_t length);
 
 void write_strings_into_file(char* name_of_file, char *text[], uint32_t number_of_strings_in_text);
 char_pointer_array read_strings_from_file(char* name_of_file);
