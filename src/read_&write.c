@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -77,13 +78,13 @@ array_2 calculate_lengths(array_2 indexes){
     return result;
 }
 
-/*uint32_t count_chars(char *array, char number, uint32_t length){
+uint32_t count_chars(char *array, char number, uint32_t length){
     uint32_t numbers = 0;
     for(uint32_t i = 0; i < length; i++) numbers += array[i] == number;
     return numbers;
-}*/
+}
 
-uint32_t count_chars_until_there_are_no_repeat_chars(char *array, char number, uint32_t length){
+/*uint32_t count_chars_until_there_are_no_repeat_chars(char *array, char number, uint32_t length){
     uint32_t numbers = 0;
     for(uint32_t i = 0; i < length - 1; i++){
         uint8_t bool_ = array[i] == number;
@@ -91,7 +92,7 @@ uint32_t count_chars_until_there_are_no_repeat_chars(char *array, char number, u
         if(bool_ && array[i + 1] == number) break;
     }
     return numbers;
-}
+}*/
 
 uint32_t length_of_strings(char *result[], const char array[], uint32_t length){
     const char* index = array;
@@ -162,6 +163,18 @@ uint32_t length_of_strings(char *result[], const char array[], uint32_t length){
     return result;
 }*/
 
+uint32_t *find_chars(uint32_t score_of_chars, char array[]){
+    uint32_t *position = malloc(score_of_chars*sizeof(uint32_t));
+    for(uint32_t i = 0, j = 0; j < score_of_chars; i++){
+        if(array[i] == 0){
+            //printf("%d\n", i);
+            position[j] = i;
+            j++;
+        }
+    }
+    return position;
+}
+
 // нечистая функция
 char_pointer_array read_strings_from_file(char* name_of_file){
     FILE *file = fopen(name_of_file, "rb");
@@ -169,75 +182,93 @@ char_pointer_array read_strings_from_file(char* name_of_file){
         perror("Ошибка открытия");
         exit(1);
     }
-    char_pointer_array strings;
-    uint32_t size_of_block;
-    {
-        uint32_t array[2];
-        fread(array, sizeof(uint32_t), 2, file);
-        size_of_block = array[0];
-        strings.length = array[1];
-    }
-    //printf("size_of_block = %d, strings.length = %d\n", size_of_block, strings.length);
-    //exit(1);
-    strings.text = malloc(strings.length*sizeof(char*));
-    char block[size_of_block];
-    //register size_t i = 0;
-    uint32_t score = 0;
-    fread(block, sizeof(char), size_of_block, file);
-    write(1, block, size_of_block);
-
-    score += length_of_strings(strings.text + score, block, size_of_block);
-
-    //printf("score: %d\n", score);
-    /*fread(block, sizeof(char), size_of_block, file);
-    score += length_of_strings(strings.text + score, block, size_of_block);
+    char block[60];
+    const uint32_t length_of_block = fread(block, sizeof(char), sizeof(block), file); //bytes
+    //write(1, block, length_of_block);
+    //printf("%d\n", );
+    uint32_t score = count_chars(block, 0, length_of_block);
     printf("score: %d\n", score);
-    //for(int i = 0; i < result.length; i++) printf("%d ",result.array_of_indexes[i]);
-    //putchar('\n');*/
-    //printf("%s\n%s\n", strings.text[0], strings.text[1]);
-    exit(1);
+    uint32_t *position = find_chars(score, block);
+    /*for(uint32_t i = 0, j = 0; i < sizeof(block); i++){
+        if(block[i] == 0){
+            //printf("%d\n", i);
+            position[j] = i;
+            j++;
+        }
+    }*/
+    //for(uint32_t i = 0; i < score; i++) printf("%d ", position[i]);
+    //putchar('\n');
+    //write(1, block, position[0]);
+    //printf("%d\n", score);
+    uint32_t index = 0;
+    char **text[score];
+    for(uint32_t i = 0; i < score; i++){
+        //printf("%d\n", i);
+        uint32_t length_ = position[i] - index + 1;
+        text[i] = malloc(length_);
+        memcpy(text[i], block + index, length_);
+        //write(1, text[i], length_);
+        index += length_;
+    }
+    printf("%d\n", block[length_of_block - 1]);
+    char *not_full_string, not_full_string_length = 0;
+    if(block[length_of_block - 1]){
+        not_full_string_length = length_of_block - index;
+        not_full_string = malloc(not_full_string_length);
+        memcpy(not_full_string, block + index, not_full_string_length);
+        //write(1, not_full_string, length_);
+        /*uint32_t index = 0;
+        char **text[score];
+        for(uint32_t i = 0; i < score; i++){
+            //printf("%d\n", i);
+            uint32_t length_ = position[i] + 1;
+            text[i] = malloc(length_);
+            memcpy(text[i], block + index, length_);
+            write(1, text[i], length_);
+            index += length_;
+        }*/
+        /*uint32_t length_ = position[0] + 1;
+        text[0] = malloc(length_);
+        memcpy(text[0], block + index, length_);
+        //write(1, text[0], length_);
+        index += length_;
+
+        length_ = position[1] - index + 1;
+        text[1] = malloc(length_);
+        memcpy(text[1], block + index, length_);
+        //putchar('\n');
+        write(1, text[1], length_);*/
+    }
+    else{
+        
+        //printf("%d\n",block[length_of_block - 1]);
+        //printf("shya");
+        /*uint32_t index = 0;
+        char **text[score];
+        for(uint32_t i = 0; i < score; i++){
+            //printf("%d\n", i);
+            uint32_t length_ = position[i] - index + 1;
+            text[i] = malloc(length_);
+            memcpy(text[i], block + index, length_);
+            //write(1, text[i], length_);
+            index += length_;
+        }*/
+    }
+
+    free(position);
     fclose(file);
-    return strings;
+    exit(1);
+    //return strings;
 }
 
 void write_strings_into_file(char* name_of_file, char *text[], uint32_t number_of_strings_in_text){
-    uint32_t size_of_block = 0;
-    for(uint32_t i = 0; i < number_of_strings_in_text; i++){
-        uint32_t len = strlen(text[i]);
-        if(len > size_of_block) size_of_block = len + 1;
-    }
     FILE *file = fopen(name_of_file, "wb");
     if (file == NULL) {
         perror("Ошибка открытия");
         exit(1);
     }
-    {
-        uint8_t size_for_array = sizeof(uint32_t)*2;
-        uint32_t *array = malloc(size_for_array);
-        array[0] = size_of_block; //в первые байты записываем размер блока
-        array[1] = number_of_strings_in_text;
-        fwrite(array, size_for_array, 1, file);
-        free(array);
-        //write(1, array, size_for_array);
+    for(uint32_t i = 0; i < number_of_strings_in_text; i++){
+        fwrite(text[i], sizeof(char), strlen(text[i])+1, file);
     }
-    char block[size_of_block];
-    for(uint32_t i = 0; i < size_of_block; i++) block[i] = 0;
-    uint8_t current_size_of_strings = 0;
-    for(size_t i = 0; i < number_of_strings_in_text; i++){
-        size_t size = strlen(text[i])+1;
-        if(size <= size_of_block - current_size_of_strings){
-            memcpy(block+current_size_of_strings, text[i], size);
-        }
-        else{
-            //write(1, block, size_of_block);
-            fwrite(block, sizeof(char), size_of_block, file);
-            for(size_t i = 0; i < size_of_block; i++)
-                block[i] = 0;
-        }
-            memcpy(block, text[i], size); // возможно переполнение...
-        current_size_of_strings += size;
-    }
-    //write(1, block, size_of_block);
-    fwrite(block, sizeof(char), size_of_block, file);
     fclose(file);
 }
