@@ -105,6 +105,26 @@ readBlockResult read_block(char block[], uint32_t length_of_block){
         index += length_;
     }
     free(position);
+    result.not_full_string_length = 0;
+    if(block[length_of_block - 1]){
+        result.not_full_string_length = length_of_block - index;
+        result.text = realloc(result.text, (++result.text_length));
+        //char not_full_string[not_full_string_length];
+        result.text[result.text_length-1] = malloc(result.not_full_string_length);
+        /*for (int i = 0; i < result.not_full_string_length; i++) {
+            printf("%d ", result.text[result.text_length-1][i]);
+        }
+        putchar('\n');*/
+        memcpy(result.text[result.text_length-1], block + index, result.not_full_string_length);
+        /*for (int i = 0; i < result.not_full_string_length; i++) {
+            printf("%d ", result.text[result.text_length-1][i]);
+        }
+        putchar('\n');*/
+        //result.text[result.text_length-1][result.not_full_string_length-1] = 56;
+        //printf(text[score_of_strings-1]);
+        //write(1, text[score_of_strings-1], not_full_string_length+2);
+        i++;
+    }
     return result;
 }
 
