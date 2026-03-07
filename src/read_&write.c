@@ -183,11 +183,11 @@ char_pointer_array read_strings_from_file(char* name_of_file){
         exit(1);
     }
     char block[60];
-    const uint32_t length_of_block = fread(block, sizeof(char), sizeof(block), file); //bytes
+    uint32_t length_of_block = fread(block, sizeof(char), sizeof(block), file); //bytes
     //write(1, block, length_of_block);
     //printf("%d\n", );
     uint32_t score = count_chars(block, 0, length_of_block);
-    printf("score: %d\n", score);
+    //printf("score: %d\n", score);
     uint32_t *position = find_chars(score, block);
     /*for(uint32_t i = 0, j = 0; i < sizeof(block); i++){
         if(block[i] == 0){
@@ -201,8 +201,9 @@ char_pointer_array read_strings_from_file(char* name_of_file){
     //write(1, block, position[0]);
     //printf("%d\n", score);
     uint32_t index = 0;
-    char **text[score];
-    for(uint32_t i = 0; i < score; i++){
+    char **text = malloc(score);
+    uint32_t i = 0;
+    for(; i < score; i++){
         //printf("%d\n", i);
         uint32_t length_ = position[i] - index + 1;
         text[i] = malloc(length_);
@@ -210,7 +211,7 @@ char_pointer_array read_strings_from_file(char* name_of_file){
         //write(1, text[i], length_);
         index += length_;
     }
-    printf("%d\n", block[length_of_block - 1]);
+    //printf("%d\n", block[length_of_block - 1]);
     char *not_full_string, not_full_string_length = 0;
     if(block[length_of_block - 1]){
         not_full_string_length = length_of_block - index;
@@ -239,21 +240,24 @@ char_pointer_array read_strings_from_file(char* name_of_file){
         //putchar('\n');
         write(1, text[1], length_);*/
     }
-    else{
-        
-        //printf("%d\n",block[length_of_block - 1]);
-        //printf("shya");
-        /*uint32_t index = 0;
-        char **text[score];
-        for(uint32_t i = 0; i < score; i++){
-            //printf("%d\n", i);
-            uint32_t length_ = position[i] - index + 1;
-            text[i] = malloc(length_);
-            memcpy(text[i], block + index, length_);
-            //write(1, text[i], length_);
-            index += length_;
-        }*/
+    free(position);
+    length_of_block = fread(block, sizeof(char), sizeof(block), file); //bytes 
+    uint32_t score2 = count_chars(block, 0, length_of_block);
+    position = find_chars(score2, block);
+    printf("i = %d\nscore: %d\n", i, score);
+    text = realloc(text, score);
+    //printf("%d\n", length_of_block);
+    //write(1, block, length_of_block);
+    for(; i < score; i++){
+        //printf("%d\n", i);
+        uint32_t length_ = position[i] - index + 1;
+        text[i] = malloc(length_);
+        memcpy(text[i], block + index, length_);
+        //write(1, text[i], length_);
+        index += length_;
     }
+    printf("вывод строк:\n");
+    for(uint32_t i = 0; i < score; i++) printf("%s\n", text[i]);
 
     free(position);
     fclose(file);
